@@ -1,2 +1,5 @@
+com/productos/service/ProductoServiceTest.class
 com/productos/controller/ProductoControllerTest.class
 com/productos/producto/ProductoApplicationTests.class
+com/productos/controller/ProductoRepositoryTest.class
+com/productos/controller/ProductoIntegrationTest.class
