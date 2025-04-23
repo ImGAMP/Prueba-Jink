@@ -12,6 +12,16 @@ public class Producto {
     private String nombre;
     private BigDecimal precio;
 
+    public Producto(Long id, String nombre, BigDecimal precio) {
+        this.id = id;
+        this.nombre = nombre;
+        this.precio = precio;
+    }
+
+    public Producto() {
+        //TODO Auto-generated constructor stub
+    }
+
     // Getters y Setters
     public Long getId() {
         return id;
