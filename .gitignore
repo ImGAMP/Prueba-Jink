@@ -1,7 +1,79 @@
+# Entornos virtuales de Python
 venv/
+*/venv/
+**/venv/
+
+# Archivos generados de Python
 __pycache__/
-*.pyc
-*.so
-*.pyd
+*.py[cod]
 *.pyo
+*.pyd
+
+# Archivos temporales de pruebas y cobertura
+*.log
+*.tmp
+.cache/
+pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.pytest_cache/
+
+# Metadata de paquetes
+*.egg-info/
+*.eggs/
+*.dist-info/
+
+# Variables de entorno
 .env
+.env.*
+
+# Configuraciones locales de editores
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Dependencias de Node.js
+node_modules/
+
+# Artefactos de Maven
+producto/target/
+producto/.mvn/
+producto/mvnw
+producto/mvnw.cmd
+
+# Archivos compilados de Java
+*.class
+*.jar
+*.war
+*.ear
+
+# Informes de cobertura y pruebas de Java
+*.exec
+.surefire-reports/
+jacoco.exec
+
+# Archivos temporales y de sistema
+*.bak
+*.swp
+*~
+*.orig
+.DS_Store
+Thumbs.db
+
+# Archivos binarios o bibliotecas compartidas
+**/*.so
+**/*.dll
+**/*.exe
+**/*.a
+**/*.lib
+
+# Archivos de backup de Git filter-repo
+.git-rewrite/
+
+# Archivos de configuración de IDEs
+.idea/
+*.iml
+
