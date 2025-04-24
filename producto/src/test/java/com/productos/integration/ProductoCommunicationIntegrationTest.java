@@ -52,7 +52,7 @@ public class ProductoCommunicationIntegrationTest {
                 .andExpect(jsonPath("$.data.type", is("productos")))
                 .andExpect(jsonPath("$.data.id", is(productoId.toString())))
                 .andExpect(jsonPath("$.data.attributes.nombre", is("Disco SSD")))
-                .andExpect(jsonPath("$.data.attributes.precio", is(340000)));
+                .andExpect(jsonPath("$.data.attributes.precio", is(closeTo(340000.0, 0.01))));
     }
 
     @Test
