@@ -8,6 +8,10 @@ from datetime import datetime, timezone
 
 router = APIRouter()
 
+@router.get("/health")
+def health():
+    return {"status": "ok"}
+
 @router.get("/{producto_id}", response_model=Inventario)
 async def obtener_inventario(producto_id: int):
     producto = await obtener_producto(producto_id)
@@ -37,7 +41,6 @@ async def actualizar_inventario(producto_id: int, cantidad_comprada: int):
         "accion": "compra",
         "cantidad_cambiada": -cantidad_comprada,
         "timestamp": datetime.now(timezone.utc)
-
     }
     inventario_collection.update_one(
         {"producto_id": producto_id},
@@ -51,7 +54,6 @@ async def actualizar_inventario(producto_id: int, cantidad_comprada: int):
 
 @router.post("/", response_model=Inventario)
 async def crear_inventario(inventario: Inventario):
-    # Validar existencia de producto vía microservicio externo
     producto = await obtener_producto(inventario.producto_id)
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
@@ -60,7 +62,8 @@ async def crear_inventario(inventario: Inventario):
     if existente:
         raise HTTPException(status_code=409, detail="El inventario de este producto ya existe")
 
-    inventario_dict = inventario.dict()
+    inventario_dict = inventario.model_dump()
     inventario_collection.insert_one(inventario_dict)
     registrar_evento("creación", inventario.producto_id, inventario.cantidad)
     return inventario
+

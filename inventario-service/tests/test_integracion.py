@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 from main import app
 from unittest.mock import patch
-from datetime import datetime
+from datetime import datetime, timezone
 
 client = TestClient(app)
 
@@ -22,7 +22,7 @@ def test_crear_inventario(mock_find, mock_insert, mock_producto, api_key_header)
             {
                 "accion": "creación",
                 "cantidad_cambiada": 5,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
         ]
     }

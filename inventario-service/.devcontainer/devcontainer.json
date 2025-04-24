@@ -1,0 +1,16 @@
+{
+    "name": "Inventario Service Dev",
+    "context": "..",
+    "dockerFile": "../Dockerfile",
+    "runArgs": ["-p", "8000:8000"],
+    "settings": {
+      "terminal.integrated.defaultProfile.linux": "bash"
+    },
+    "extensions": [
+      "ms-python.python",
+      "ms-azuretools.vscode-docker"
+    ],
+    "postCreateCommand": "pip install -r requirements.txt",
+    "forwardPorts": [8000]
+}
+  

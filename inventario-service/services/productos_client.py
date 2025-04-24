@@ -17,6 +17,10 @@ async def obtener_producto(producto_id: int):
                 return response.json()
             return None
     except httpx.RequestError as e:
-        print(f"Error al comunicarse con el servicio de productos: {e}")
+        # Log con mayor detalle
+        print(f"[ERROR] No se pudo obtener el producto {producto_id}: {str(e)}")
         return None
-    
+    except httpx.HTTPStatusError as e:  
+        # Log con mayor detalle
+        print(f"[ERROR] Error al obtener el producto {producto_id}: {str(e)}")
+        return None
