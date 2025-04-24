@@ -1,6 +1,7 @@
 venv/
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
 *.so
+*.pyd
+*.pyo
+.env
