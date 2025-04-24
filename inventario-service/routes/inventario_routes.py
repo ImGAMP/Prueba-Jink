@@ -5,8 +5,15 @@ from services.productos_client import obtener_producto
 from utils.logger import registrar_evento
 from bson import ObjectId
 from datetime import datetime, timezone
+from fastapi import APIRouter, Path
+from services.productos_client import obtener_producto
+
 
 router = APIRouter()
+
+@router.get("/consultar-producto/{producto_id}")
+async def consultar_producto(producto_id: int = Path(..., gt=0)):
+    return await obtener_producto(producto_id)
 
 @router.get("/health")
 def health():
