@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:6.0
+    container_name: mongo
+    restart: always
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - jinktic-network
+
+  inventario-service:
+    build:
+      context: ./inventario-service
+      dockerfile: Dockerfile
+    container_name: inventario-service
+    ports:
+      - '8000:8000'
+    depends_on:
+      - mongo
+      - producto-app
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/inventario_db
+      - PRODUCTOS_URL=http://producto-app:8080
+      - API_KEY=XYZ123
+    networks:
+      - jinktic-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: secret
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - jinktic-network
+
+  producto-app:
+    build:
+      context: ./producto
+      dockerfile: Dockerfile
+    container_name: producto-app
+    ports:
+      - '8080:8080'
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - jinktic-network
+
+volumes:
+  mongo_data:
+  postgres_data:
+
+networks:
+  jinktic-network:

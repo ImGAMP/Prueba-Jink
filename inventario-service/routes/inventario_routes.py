@@ -29,6 +29,11 @@ async def actualizar_inventario(producto_id: int, cantidad_comprada: int):
     if cantidad_comprada <= 0:
         raise HTTPException(status_code=400, detail="La cantidad debe ser positiva")
 
+    # ✅ Validación del producto para cubrir fallos de comunicación o inexistencia
+    producto = await obtener_producto(producto_id)
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+
     inventario = inventario_collection.find_one({"producto_id": producto_id})
     if not inventario:
         raise HTTPException(status_code=404, detail="Inventario no encontrado")
@@ -66,4 +71,3 @@ async def crear_inventario(inventario: Inventario):
     inventario_collection.insert_one(inventario_dict)
     registrar_evento("creación", inventario.producto_id, inventario.cantidad)
     return inventario
-
