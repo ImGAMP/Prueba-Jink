@@ -1,5 +1,12 @@
-/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/controller/ProductoControllerTest.java
-/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/controller/ProductoIntegrationTest.java
-/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/controller/ProductoRepositoryTest.java
-/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/producto/ProductoApplicationTests.java
-/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/service/ProductoServiceTest.java
+/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/integration/CorrelationIdIntegrationTest.java
+/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/integration/ProductoIntegrationTest.java
+/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/unit/ApiKeyFilterTest.java
+/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/unit/GlobalExceptionHandlerTest.java
+/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/unit/JsonApiAndFilterTests.java
+/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/unit/JsonApiResponseTest.java
+/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/unit/ProductoApplicationTests.java
+/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/unit/ProductoControllerTest.java
+/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/unit/ProductoDTOTest.java
+/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/unit/ProductoRepositoryTest.java
+/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/unit/ProductoServiceTest.java
+/home/imgamp/Documentos/Prueba-Jink/producto/src/test/java/com/productos/unit/ProductoTest.java

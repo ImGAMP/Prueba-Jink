@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">producto</a> &gt; <a href="index.source.html" class="el_package">com.productos.exception</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package com.productos.exception;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+
+@RestControllerAdvice
+<span class="fc" id="L10">public class GlobalExceptionHandler {</span>
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; handleValidationErrors(MethodArgumentNotValidException ex) {
+<span class="fc" id="L14">        List&lt;Map&lt;String, Object&gt;&gt; errors = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L16">        ex.getBindingResult().getFieldErrors().forEach(error -&gt; {</span>
+<span class="fc" id="L17">            Map&lt;String, Object&gt; errorObject = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L18">            errorObject.put(&quot;status&quot;, &quot;400&quot;);</span>
+<span class="fc" id="L19">            errorObject.put(&quot;title&quot;, &quot;Campo inválido&quot;);</span>
+<span class="fc" id="L20">            errorObject.put(&quot;detail&quot;, error.getDefaultMessage());</span>
+<span class="fc" id="L21">            errorObject.put(&quot;source&quot;, Map.of(&quot;pointer&quot;, &quot;/data/attributes/&quot; + error.getField()));</span>
+<span class="fc" id="L22">            errors.add(errorObject);</span>
+<span class="fc" id="L23">        });</span>
+
+<span class="fc" id="L25">        return new ResponseEntity&lt;&gt;(Map.of(&quot;errors&quot;, errors), HttpStatus.BAD_REQUEST);</span>
+    }
+
+    @ExceptionHandler(ProductoNotFoundException.class)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; handleProductoNotFound(ProductoNotFoundException ex) {
+<span class="fc" id="L30">        Map&lt;String, Object&gt; errorObject = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L31">        errorObject.put(&quot;status&quot;, &quot;404&quot;);</span>
+<span class="fc" id="L32">        errorObject.put(&quot;title&quot;, &quot;Producto no encontrado&quot;);</span>
+<span class="fc" id="L33">        errorObject.put(&quot;detail&quot;, ex.getMessage());</span>
+
+<span class="fc" id="L35">        return new ResponseEntity&lt;&gt;(Map.of(&quot;errors&quot;, List.of(errorObject)), HttpStatus.NOT_FOUND);</span>
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; handleUnexpectedErrors(Exception ex) {
+<span class="fc" id="L40">        Map&lt;String, Object&gt; errorObject = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L41">        errorObject.put(&quot;status&quot;, &quot;500&quot;);</span>
+<span class="fc" id="L42">        errorObject.put(&quot;title&quot;, &quot;Error inesperado&quot;);</span>
+<span class="fc" id="L43">        errorObject.put(&quot;detail&quot;, ex.getMessage());</span>
+
+<span class="fc" id="L45">        return new ResponseEntity&lt;&gt;(Map.of(&quot;errors&quot;, List.of(errorObject)), HttpStatus.INTERNAL_SERVER_ERROR);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

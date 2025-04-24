@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/mydatabase
+    username: myuser
+    password: secret
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      mode: always
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    "health":
+      show-details: always
+  health:
+    "diskspace":
+      enabled: true
+    "db":
+      enabled: true

@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerConfig {
 
     @Bean
-    public OpenAPI customOpenAPI() {
+    OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
                         .title("API de Productos")
@@ -19,7 +19,7 @@ public class SwaggerConfig {
     }
 
     @Bean
-    public GroupedOpenApi publicApi() {
+    GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
                 .group("productos")
                 .pathsToMatch("/productos/**")

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">producto</a> &gt; <a href="index.source.html" class="el_package">com.productos.controller</a> &gt; <span class="el_source">ProductoController.java</span></div><h1>ProductoController.java</h1><pre class="source lang-java linenums">package com.productos.controller;
+
+import com.productos.api.JsonApiResponse;
+import com.productos.dto.ProductoDTO;
+import com.productos.dto.ProductoRequest;
+import com.productos.entity.Producto;
+import com.productos.service.ProductoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@Validated
+@RequestMapping(&quot;/productos&quot;)
+@Tag(name = &quot;Productos&quot;, description = &quot;Operaciones CRUD sobre productos&quot;)
+<span class="fc" id="L25">public class ProductoController {</span>
+
+<span class="fc" id="L27">    private static final Logger logger = LoggerFactory.getLogger(ProductoController.class);</span>
+
+    @Autowired
+    private ProductoService service;
+
+    @Operation(summary = &quot;Crear un producto&quot;)
+    @PostMapping
+    public Object crear(@Valid @RequestBody ProductoRequest request) {
+<span class="fc" id="L35">        logger.info(&quot;Solicitud de creación de producto recibida. CorrelationId: {}, nombre: {}, precio: {}&quot;,</span>
+<span class="fc" id="L36">                MDC.get(&quot;correlationId&quot;), request.getNombre(), request.getPrecio());</span>
+
+<span class="fc" id="L38">        Producto producto = new Producto();</span>
+<span class="fc" id="L39">        producto.setNombre(request.getNombre());</span>
+<span class="fc" id="L40">        producto.setPrecio(request.getPrecio());</span>
+
+<span class="fc" id="L42">        Producto creado = service.crear(producto);</span>
+<span class="fc" id="L43">        ProductoDTO dto = new ProductoDTO(creado.getId(), creado.getNombre(), creado.getPrecio());</span>
+
+<span class="fc" id="L45">        logger.info(&quot;Producto creado con éxito. ID: {}, CorrelationId: {}&quot;, dto.getId(), MDC.get(&quot;correlationId&quot;));</span>
+<span class="fc" id="L46">        return JsonApiResponse.wrapOne(&quot;productos&quot;, dto.getId(), dto);</span>
+    }
+
+    @Operation(summary = &quot;Obtener un producto por ID&quot;)
+    @GetMapping(&quot;/{id}&quot;)
+    public Object obtener(@PathVariable Long id) {
+<span class="fc" id="L52">        logger.info(&quot;Solicitud para obtener producto con ID: {}. CorrelationId: {}&quot;, id, MDC.get(&quot;correlationId&quot;));</span>
+
+<span class="fc" id="L54">        Producto producto = service.obtener(id);</span>
+<span class="fc" id="L55">        ProductoDTO dto = new ProductoDTO(producto.getId(), producto.getNombre(), producto.getPrecio());</span>
+
+<span class="fc" id="L57">        logger.info(&quot;Producto obtenido correctamente. ID: {}, CorrelationId: {}&quot;, dto.getId(), MDC.get(&quot;correlationId&quot;));</span>
+<span class="fc" id="L58">        return JsonApiResponse.wrapOne(&quot;productos&quot;, dto.getId(), dto);</span>
+    }
+
+    @Operation(summary = &quot;Actualizar un producto por ID&quot;)
+    @PutMapping(&quot;/{id}&quot;)
+    public Object actualizar(@PathVariable Long id, @Valid @RequestBody ProductoRequest request) {
+<span class="fc" id="L64">        logger.info(&quot;Solicitud de actualización de producto con ID: {}. CorrelationId: {}, nuevos datos -&gt; nombre: {}, precio: {}&quot;,</span>
+<span class="fc" id="L65">                id, MDC.get(&quot;correlationId&quot;), request.getNombre(), request.getPrecio());</span>
+
+<span class="fc" id="L67">        Producto producto = new Producto();</span>
+<span class="fc" id="L68">        producto.setNombre(request.getNombre());</span>
+<span class="fc" id="L69">        producto.setPrecio(request.getPrecio());</span>
+
+<span class="fc" id="L71">        Producto actualizado = service.actualizar(id, producto);</span>
+<span class="fc" id="L72">        ProductoDTO dto = new ProductoDTO(actualizado.getId(), actualizado.getNombre(), actualizado.getPrecio());</span>
+
+<span class="fc" id="L74">        logger.info(&quot;Producto actualizado exitosamente. ID: {}, CorrelationId: {}&quot;, dto.getId(), MDC.get(&quot;correlationId&quot;));</span>
+<span class="fc" id="L75">        return JsonApiResponse.wrapOne(&quot;productos&quot;, dto.getId(), dto);</span>
+    }
+
+    @Operation(summary = &quot;Eliminar un producto por ID&quot;)
+    @DeleteMapping(&quot;/{id}&quot;)
+    public void eliminar(@PathVariable Long id) {
+<span class="fc" id="L81">        logger.warn(&quot;Solicitud para eliminar producto. ID: {}, CorrelationId: {}&quot;, id, MDC.get(&quot;correlationId&quot;));</span>
+<span class="fc" id="L82">        service.eliminar(id);</span>
+<span class="fc" id="L83">        logger.info(&quot;Producto eliminado correctamente. ID: {}, CorrelationId: {}&quot;, id, MDC.get(&quot;correlationId&quot;));</span>
+<span class="fc" id="L84">    }</span>
+
+    @Operation(summary = &quot;Listar productos con paginación&quot;)
+    @GetMapping
+    public Object listar(@RequestParam(defaultValue = &quot;0&quot;) int page,
+                         @RequestParam(defaultValue = &quot;10&quot;) int size) {
+<span class="fc" id="L90">        logger.info(&quot;Solicitud para listar productos. Página: {}, Tamaño: {}, CorrelationId: {}&quot;,</span>
+<span class="fc" id="L91">                page, size, MDC.get(&quot;correlationId&quot;));</span>
+
+<span class="fc" id="L93">        List&lt;JsonApiResponse.Item&lt;ProductoDTO&gt;&gt; items = service.listar(page, size)</span>
+<span class="fc" id="L94">                .stream()</span>
+<span class="fc" id="L95">                .map(p -&gt; new ProductoDTO(p.getId(), p.getNombre(), p.getPrecio()))</span>
+<span class="fc" id="L96">                .map(dto -&gt; new JsonApiResponse.Item&lt;&gt;(dto.getId(), dto))</span>
+<span class="fc" id="L97">                .collect(Collectors.toList());</span>
+
+<span class="fc" id="L99">        logger.info(&quot;Se listaron {} productos. CorrelationId: {}&quot;, items.size(), MDC.get(&quot;correlationId&quot;));</span>
+<span class="fc" id="L100">        return JsonApiResponse.wrapList(&quot;productos&quot;, items);</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

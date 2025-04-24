@@ -3,10 +3,12 @@ package com.productos.service;
 import com.productos.entity.Producto;
 import com.productos.exception.ProductoNotFoundException;
 import com.productos.repository.ProductoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class ProductoService {

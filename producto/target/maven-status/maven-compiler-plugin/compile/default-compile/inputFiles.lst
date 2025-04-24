@@ -1,8 +1,11 @@
 /home/imgamp/Documentos/Prueba-Jink/producto/src/main/java/com/productos/ProductoApplication.java
+/home/imgamp/Documentos/Prueba-Jink/producto/src/main/java/com/productos/api/JsonApiResponse.java
 /home/imgamp/Documentos/Prueba-Jink/producto/src/main/java/com/productos/config/ApiKeyFilter.java
+/home/imgamp/Documentos/Prueba-Jink/producto/src/main/java/com/productos/config/CorrelationIdFilter.java
 /home/imgamp/Documentos/Prueba-Jink/producto/src/main/java/com/productos/config/SwaggerConfig.java
 /home/imgamp/Documentos/Prueba-Jink/producto/src/main/java/com/productos/controller/ProductoController.java
 /home/imgamp/Documentos/Prueba-Jink/producto/src/main/java/com/productos/dto/ProductoDTO.java
+/home/imgamp/Documentos/Prueba-Jink/producto/src/main/java/com/productos/dto/ProductoRequest.java
 /home/imgamp/Documentos/Prueba-Jink/producto/src/main/java/com/productos/entity/Producto.java
 /home/imgamp/Documentos/Prueba-Jink/producto/src/main/java/com/productos/exception/GlobalExceptionHandler.java
 /home/imgamp/Documentos/Prueba-Jink/producto/src/main/java/com/productos/exception/ProductoNotFoundException.java
