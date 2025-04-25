@@ -72,7 +72,7 @@ jobs:
           SPRING_DATASOURCE_PASSWORD: secret
           SPRING_PROFILES_ACTIVE: test
         run: |
-          ./mvnw clean test -Dspring.profiles.active=test
+          ./mvnw clean test
 
       - name: Test Inventario Service (Python)
         working-directory: ./inventario-service
