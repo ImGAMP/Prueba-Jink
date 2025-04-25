@@ -81,7 +81,7 @@ jobs:
           PRODUCTOS_SERVICE_URL: http://localhost:8080
         run: |
             python -m pip install --user --upgrade pip
-            python -m pip install --user --force-reinstall -r requirements.txt
+            pip install --no-cache-dir --ignore-installed -r requirements.txt
             PYTHONPATH=. pytest -v
 
   deploy:
