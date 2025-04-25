@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # Cambiado a LTS estable
     services:
       postgres:
         image: postgres:15-alpine
@@ -34,7 +34,7 @@ jobs:
         ports:
           - 27017:27017
         options: >-
-          --health-cmd "mongosh --host localhost --username root --password example --eval 'db.adminCommand(\"ping\")' --quiet"
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
           --health-interval 15s
           --health-timeout 10s
           --health-retries 10
@@ -45,10 +45,9 @@ jobs:
 
       - name: Install MongoDB Shell (mongosh)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget gnupg
-          wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
-          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+          # Solución universal para cualquier versión de Ubuntu
+          curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | sudo gpg --dearmor -o /usr/share/keyrings/mongodb.gpg
+          echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
           sudo apt-get update
           sudo apt-get install -y mongodb-mongosh
 
@@ -84,7 +83,7 @@ jobs:
 
   deploy:
     needs: build-and-test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
