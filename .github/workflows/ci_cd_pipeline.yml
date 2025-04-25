@@ -49,14 +49,14 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
           SPRING_DATASOURCE_USERNAME: myuser
           SPRING_DATASOURCE_PASSWORD: secret
-        volumes:
-          - ./producto:/app
-        working-dir: /app
         options: >-
+          --workdir /app
           --health-cmd "./mvnw spring-boot:run"
           --health-interval 20s
           --health-timeout 10s
           --health-retries 5
+        volumes:
+          - ./producto:/app
 
     steps:
       - name: Checkout code
@@ -83,6 +83,17 @@ jobs:
         run: |
           timeout 180 bash -c 'until mongosh --host localhost --username root --password example --eval "db.adminCommand(\"ping\")" --quiet; do sleep 5; echo "Waiting for MongoDB..."; done'
 
+      - name: Build Producto Service
+        working-directory: ./producto
+        run: |
+          ./mvnw clean package -DskipTests
+
+      - name: Start Producto Service
+        working-directory: ./producto
+        run: |
+          nohup ./mvnw spring-boot:run &
+          sleep 30  # Esperar a que el servicio inicie
+
       - name: Wait for Producto Service
         run: |
           timeout 120 bash -c 'until curl -s http://localhost:8080/actuator/health | grep -q "UP"; do sleep 2; echo "Waiting for Producto Service..."; done'
@@ -92,7 +103,7 @@ jobs:
         env:
           SPRING_PROFILES_ACTIVE: test
         run: |
-          ./mvnw clean test
+          ./mvnw test
 
       - name: Test Inventario Service (Python)
         working-directory: ./inventario-service
