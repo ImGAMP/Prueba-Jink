@@ -42,7 +42,7 @@ public class ProductoRepositoryTest {
             () -> assertTrue(encontrado.isPresent(), "Debería encontrar el producto guardado"),
             () -> assertEquals("Laptop", encontrado.get().getNombre(), "El nombre no coincide"),
             () -> assertEquals(0, new BigDecimal("1299.99").compareTo(encontrado.get().getPrecio()), 
-                "El precio no coincide"
+                "El precio no coincide")
         );
     }
 
