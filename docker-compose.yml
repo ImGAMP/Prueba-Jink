@@ -41,7 +41,9 @@ services:
     environment:
       - MONGO_URL=mongodb://mongo:27017/inventario_db
       - PRODUCTOS_URL=http://producto-app:8080
+      - INVENTARIO_SERVICE_URL=http://inventario-service:8000
       - API_KEY=XYZ123
+      - PYTHONUNBUFFERED=1
     networks:
       - jinktic-network
 
