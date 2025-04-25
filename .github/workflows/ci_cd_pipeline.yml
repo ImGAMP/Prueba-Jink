@@ -80,9 +80,8 @@ jobs:
           API_KEY: XYZ123
           PRODUCTOS_SERVICE_URL: http://localhost:8080
         run: |
-            python -m pip install --upgrade pip
-            pip uninstall -y pyopenssl cryptography pymongo
-            pip install --force-reinstall -r requirements.txt
+            python -m pip install --user --upgrade pip
+            python -m pip install --user --force-reinstall -r requirements.txt
             PYTHONPATH=. pytest -v
 
   deploy:
