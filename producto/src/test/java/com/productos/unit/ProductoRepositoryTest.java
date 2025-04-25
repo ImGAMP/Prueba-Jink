@@ -6,12 +6,16 @@ import java.math.BigDecimal;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.productos.entity.Producto;
 import com.productos.repository.ProductoRepository;
 
-@SpringBootTest
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
 public class ProductoRepositoryTest {
 
     @Autowired
@@ -24,4 +28,3 @@ public class ProductoRepositoryTest {
         assertNotNull(guardado.getId());
     }
 }
-
