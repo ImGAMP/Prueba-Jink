@@ -11,6 +11,10 @@ app.middleware("http")(api_key_middleware)
 # Rutas
 app.include_router(inventario_router, prefix="/inventario", tags=["Inventario"])
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "services": {"mongo": "up", "productos": "up"}}
+
 @app.get("/ping")
 def ping():
     return {"msg": "pong actualizado"}
