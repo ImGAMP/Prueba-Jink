@@ -4,16 +4,38 @@ from config import inventario_collection
 from services.productos_client import obtener_producto
 from utils.logger import registrar_evento
 from bson import ObjectId
+from fastapi import HTTPException
 from datetime import datetime, timezone
 from fastapi import APIRouter, Path
 from services.productos_client import obtener_producto
-
+from fastapi.responses import JSONResponse
+from httpx import RequestError
 
 router = APIRouter()
 
+
 @router.get("/consultar-producto/{producto_id}")
 async def consultar_producto(producto_id: int = Path(..., gt=0)):
-    return await obtener_producto(producto_id)
+    try:
+        producto = await obtener_producto(producto_id)
+    except RequestError:
+        raise HTTPException(status_code=404, detail="Producto no encontrado (error de conexión)")
+
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+    jsonapi_response = {
+        "data": {
+            "type": "productos",
+            "id": str(producto.get("id")),
+            "attributes": {
+                "nombre": producto.get("nombre"),
+                "precio": producto.get("precio")
+            }
+        }
+    }
+    return JSONResponse(content=jsonapi_response)
+
 
 @router.get("/health")
 def health():
@@ -21,7 +43,11 @@ def health():
 
 @router.get("/{producto_id}", response_model=Inventario)
 async def obtener_inventario(producto_id: int):
-    producto = await obtener_producto(producto_id)
+    try:
+        producto = await obtener_producto(producto_id)
+    except RequestError:  # <- ¡Este import es clave!
+        raise HTTPException(status_code=404, detail="Producto no encontrado (error de conexión)")
+
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
 
@@ -36,7 +62,6 @@ async def actualizar_inventario(producto_id: int, cantidad_comprada: int):
     if cantidad_comprada <= 0:
         raise HTTPException(status_code=400, detail="La cantidad debe ser positiva")
 
-    # ✅ Validación del producto para cubrir fallos de comunicación o inexistencia
     producto = await obtener_producto(producto_id)
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")

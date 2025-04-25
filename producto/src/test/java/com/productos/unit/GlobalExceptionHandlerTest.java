@@ -8,8 +8,10 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("null")
 public class GlobalExceptionHandlerTest {
 
+    
     @Test
     void testHandleProductoNotFound() {
         ProductoNotFoundException ex = new ProductoNotFoundException("No encontrado");

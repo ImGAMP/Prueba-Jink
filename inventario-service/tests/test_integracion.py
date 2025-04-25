@@ -1,19 +1,29 @@
 import pytest
-from fastapi.testclient import TestClient
-from main import app
-from unittest.mock import patch
+import pytest_asyncio
+from httpx import AsyncClient, ASGITransport
+from unittest.mock import patch, AsyncMock
 from datetime import datetime, timezone
+from main import app
 
-client = TestClient(app)
+# ---------------- FIXTURES ----------------
+
+@pytest_asyncio.fixture
+async def async_client():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client
 
 @pytest.fixture
 def api_key_header():
     return {"X-API-KEY": "XYZ123"}
 
-@patch("routes.inventario_routes.obtener_producto")
+# ---------------- TESTS ----------------
+
+@patch("routes.inventario_routes.obtener_producto", new_callable=AsyncMock)
 @patch("routes.inventario_routes.inventario_collection.insert_one")
 @patch("routes.inventario_routes.inventario_collection.find_one", return_value=None)
-def test_crear_inventario(mock_find, mock_insert, mock_producto, api_key_header):
+@pytest.mark.asyncio
+async def test_crear_inventario(mock_find, mock_insert, mock_producto, async_client, api_key_header):
     mock_producto.return_value = {"id": 101, "nombre": "Test", "precio": 100.0}
     data = {
         "producto_id": 101,
@@ -26,13 +36,14 @@ def test_crear_inventario(mock_find, mock_insert, mock_producto, api_key_header)
             }
         ]
     }
-    response = client.post("/inventario/", json=data, headers=api_key_header)
+    response = await async_client.post("/inventario/", json=data, headers=api_key_header)
     assert response.status_code == 200
     assert response.json()["producto_id"] == 101
 
-@patch("routes.inventario_routes.obtener_producto")
+@patch("routes.inventario_routes.obtener_producto", new_callable=AsyncMock)
 @patch("routes.inventario_routes.inventario_collection.find_one")
-def test_crear_inventario_duplicado(mock_find, mock_producto, api_key_header):
+@pytest.mark.asyncio
+async def test_crear_inventario_duplicado(mock_find, mock_producto, async_client, api_key_header):
     mock_producto.return_value = {"id": 102, "nombre": "Test", "precio": 100.0}
     mock_find.return_value = {"producto_id": 102, "cantidad": 10, "historial": []}
     data = {
@@ -40,6 +51,6 @@ def test_crear_inventario_duplicado(mock_find, mock_producto, api_key_header):
         "cantidad": 10,
         "historial": []
     }
-    response = client.post("/inventario/", json=data, headers=api_key_header)
+    response = await async_client.post("/inventario/", json=data, headers=api_key_header)
     assert response.status_code == 409
     assert "ya existe" in response.text

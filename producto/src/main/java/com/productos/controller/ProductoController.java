@@ -29,6 +29,11 @@ public class ProductoController {
     @Autowired
     private ProductoService service;
 
+    @GetMapping("/saludo")
+    public String saludo() {
+        return "Hola, mundo actualizado!";
+    }
+
     @Operation(summary = "Crear un producto")
     @PostMapping
     public Object crear(@Valid @RequestBody ProductoRequest request) {
@@ -54,14 +59,16 @@ public class ProductoController {
         Producto producto = service.obtener(id);
         ProductoDTO dto = new ProductoDTO(producto.getId(), producto.getNombre(), producto.getPrecio());
 
-        logger.info("Producto obtenido correctamente. ID: {}, CorrelationId: {}", dto.getId(), MDC.get("correlationId"));
+        logger.info("Producto obtenido correctamente. ID: {}, CorrelationId: {}", dto.getId(),
+                MDC.get("correlationId"));
         return JsonApiResponse.wrapOne("productos", dto.getId(), dto);
     }
 
     @Operation(summary = "Actualizar un producto por ID")
     @PutMapping("/{id}")
     public Object actualizar(@PathVariable Long id, @Valid @RequestBody ProductoRequest request) {
-        logger.info("Solicitud de actualización de producto con ID: {}. CorrelationId: {}, nuevos datos -> nombre: {}, precio: {}",
+        logger.info(
+                "Solicitud de actualización de producto con ID: {}. CorrelationId: {}, nuevos datos -> nombre: {}, precio: {}",
                 id, MDC.get("correlationId"), request.getNombre(), request.getPrecio());
 
         Producto producto = new Producto();
@@ -71,7 +78,8 @@ public class ProductoController {
         Producto actualizado = service.actualizar(id, producto);
         ProductoDTO dto = new ProductoDTO(actualizado.getId(), actualizado.getNombre(), actualizado.getPrecio());
 
-        logger.info("Producto actualizado exitosamente. ID: {}, CorrelationId: {}", dto.getId(), MDC.get("correlationId"));
+        logger.info("Producto actualizado exitosamente. ID: {}, CorrelationId: {}", dto.getId(),
+                MDC.get("correlationId"));
         return JsonApiResponse.wrapOne("productos", dto.getId(), dto);
     }
 
@@ -86,7 +94,7 @@ public class ProductoController {
     @Operation(summary = "Listar productos con paginación")
     @GetMapping
     public Object listar(@RequestParam(defaultValue = "0") int page,
-                         @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size) {
         logger.info("Solicitud para listar productos. Página: {}, Tamaño: {}, CorrelationId: {}",
                 page, size, MDC.get("correlationId"));
 
@@ -100,4 +108,3 @@ public class ProductoController {
         return JsonApiResponse.wrapList("productos", items);
     }
 }
-

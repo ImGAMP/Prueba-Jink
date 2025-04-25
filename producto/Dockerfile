@@ -1,16 +1,14 @@
-FROM eclipse-temurin:17-jdk-alpine
+# Imagen con Maven y JDK 17
+FROM maven:3.9.6-eclipse-temurin-17
 
-# Establecer el directorio de trabajo
+# Crear directorio de trabajo
 WORKDIR /app
 
-# Copiar dependencias y código fuente
-COPY target/producto-0.0.1-SNAPSHOT.jar app.jar
+# Copiar el código fuente
+COPY . .
 
-# Puerto de exposición (opcional)
+# Exponer el puerto
 EXPOSE 8080
 
-# Variable de entorno para la JVM
-ENV JAVA_OPTS="-Xms128m -Xmx512m"
-
-# Comando de inicio
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+# Ejecutar con spring-boot:run
+CMD ["mvn", "spring-boot:run"]
