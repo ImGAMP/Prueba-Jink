@@ -11,16 +11,6 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    env:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: secret
-      POSTGRES_DB: mydatabase
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-      PRODUCTOS_SERVICE_URL: http://localhost:8080
-      INVENTARIO_DB_NAME: inventario_db
-      API_KEY: XYZ123
-    
     services:
       postgres:
         image: postgres:15-alpine
@@ -31,7 +21,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U myuser -d mydatabase"
+          --health-cmd "pg_isready -h localhost -U myuser -d mydatabase"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -44,7 +34,7 @@ jobs:
         ports:
           - 27017:27017
         options: >-
-          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-cmd "mongosh --host localhost --username root --password example --eval 'db.adminCommand(\"ping\")'"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -53,13 +43,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Wait for databases
+      - name: Wait for PostgreSQL
         run: |
-          # Esperar PostgreSQL
-          timeout 60 bash -c 'until pg_isready -U $POSTGRES_USER -d $POSTGRES_DB; do sleep 2; done'
-          
-          # Esperar MongoDB
-          timeout 60 bash -c 'until mongosh --username $MONGO_INITDB_ROOT_USERNAME --password $MONGO_INITDB_ROOT_PASSWORD --eval "db.adminCommand(\"ping\")"; do sleep 2; done'
+          timeout 120 bash -c 'until pg_isready -h localhost -U myuser -d mydatabase; do sleep 2; echo "Waiting for PostgreSQL..."; done'
+
+      - name: Wait for MongoDB
+        run: |
+          timeout 120 bash -c 'until mongosh --host localhost --username root --password example --eval "db.adminCommand(\"ping\")"; do sleep 2; echo "Waiting for MongoDB..."; done'
 
       - name: Test Producto Service (Spring Boot)
         working-directory: ./producto
@@ -93,10 +83,5 @@ jobs:
 
       - name: Set up Docker Compose
         run: |
-          # Ajustar el puerto de PostgreSQL si es necesario
-          if [ -f docker-compose.yml ]; then
-            sed -i 's/5432:5432/5433:5432/g' docker-compose.yml
-          fi
-          
           docker-compose up -d --build
           docker-compose ps
