@@ -11,7 +11,6 @@ on:
 jobs:
   build-test:
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres:15-alpine
@@ -22,9 +21,9 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U myuser" 
-          --health-interval=10s 
-          --health-timeout=5s 
+          --health-cmd="pg_isready -U myuser"
+          --health-interval=10s
+          --health-timeout=5s
           --health-retries=5
 
       mongo:
@@ -32,10 +31,10 @@ jobs:
         ports:
           - 27017:27017
         options: >-
-          --health-cmd="mongo --eval 'db.runCommand({ ping: 1 })'" 
-          --health-interval=10s 
-          --health-timeout=5s 
-          --health-retries=5
+          --health-cmd="bash -c 'mongo --quiet --eval \"db.adminCommand(\\\"ping\\\")\" || exit 1'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
 
     steps:
       - name: Checkout code
@@ -51,14 +50,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Esperar a MongoDB
-        run: |
-          for i in {1..30}; do
-            mongo --eval "db.runCommand({ ping: 1 })" && break
-            echo "Esperando a que MongoDB esté listo..."
-            sleep 2
-          done
 
       - name: Run Python tests
         working-directory: ./inventario-service
@@ -88,7 +79,3 @@ jobs:
         run: |
           docker-compose -f docker-compose.yml up --build -d
 
-
-      - name: Deploy with Docker Compose
-        run: |
-          docker-compose -f docker-compose.yml up --build -d
