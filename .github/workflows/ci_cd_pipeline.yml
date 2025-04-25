@@ -68,10 +68,7 @@ jobs:
       - name: Test Producto Service (Spring Boot)
         working-directory: ./producto
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/mydatabase
-          SPRING_DATASOURCE_USERNAME: myuser
-          SPRING_DATASOURCE_PASSWORD: secret
-          SPRING_PROFILES_ACTIVE: test
+          SPRING_PROFILES_ACTIVE: test  # Solo activar el perfil test
         run: |
           ./mvnw clean test
 
