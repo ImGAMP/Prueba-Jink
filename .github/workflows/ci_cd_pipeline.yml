@@ -8,46 +8,46 @@ on:
     branches:
       - main
 
-env:
-  POSTGRES_USER: myuser
-  POSTGRES_PASSWORD: secret
-  POSTGRES_DB: mydatabase
-  MONGO_INITDB_ROOT_USERNAME: root
-  MONGO_INITDB_ROOT_PASSWORD: example
-  PRODUCTOS_SERVICE_URL: http://localhost:8080
-  INVENTARIO_DB_NAME: inventario_db
-  API_KEY: XYZ123
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: mydatabase
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      PRODUCTOS_SERVICE_URL: http://localhost:8080
+      INVENTARIO_DB_NAME: inventario_db
+      API_KEY: XYZ123
+    
     services:
       postgres:
         image: postgres:15-alpine
         env:
-          POSTGRES_USER: ${{ env.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+          POSTGRES_USER: myuser
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: mydatabase
         ports:
-          - 5432:5432 
+          - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U ${{ env.POSTGRES_USER }} -d ${{ env.POSTGRES_DB }}"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+          --health-cmd "pg_isready -U myuser -d mydatabase"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
       mongo:
         image: mongo:6.0
         env:
-          MONGO_INITDB_ROOT_USERNAME: ${{ env.MONGO_INITDB_ROOT_USERNAME }}
-          MONGO_INITDB_ROOT_PASSWORD: ${{ env.MONGO_INITDB_ROOT_PASSWORD }}
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: example
         ports:
           - 27017:27017
         options: >-
-          --health-cmd="mongosh --eval 'db.adminCommand(\"ping\")'"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout code
@@ -59,14 +59,14 @@ jobs:
           timeout 60 bash -c 'until pg_isready -U $POSTGRES_USER -d $POSTGRES_DB; do sleep 2; done'
           
           # Esperar MongoDB
-          timeout 60 bash -c 'until mongosh --eval "db.adminCommand(\"ping\")"; do sleep 2; done'
+          timeout 60 bash -c 'until mongosh --username $MONGO_INITDB_ROOT_USERNAME --password $MONGO_INITDB_ROOT_PASSWORD --eval "db.adminCommand(\"ping\")"; do sleep 2; done'
 
       - name: Test Producto Service (Spring Boot)
         working-directory: ./producto
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${{ env.POSTGRES_DB }}
-          SPRING_DATASOURCE_USERNAME: ${{ env.POSTGRES_USER }}
-          SPRING_DATASOURCE_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/mydatabase
+          SPRING_DATASOURCE_USERNAME: myuser
+          SPRING_DATASOURCE_PASSWORD: secret
           SPRING_PROFILES_ACTIVE: test
         run: |
           ./mvnw clean test
@@ -75,9 +75,9 @@ jobs:
         working-directory: ./inventario-service
         env:
           MONGO_URI: mongodb://localhost:27017
-          DB_NAME: ${{ env.INVENTARIO_DB_NAME }}
-          API_KEY: ${{ env.API_KEY }}
-          PRODUCTOS_SERVICE_URL: ${{ env.PRODUCTOS_SERVICE_URL }}
+          DB_NAME: inventario_db
+          API_KEY: XYZ123
+          PRODUCTOS_SERVICE_URL: http://localhost:8080
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
@@ -92,6 +92,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Docker Compose
-        run: |         
+        run: |
+          # Ajustar el puerto de PostgreSQL si es necesario
+          if [ -f docker-compose.yml ]; then
+            sed -i 's/5432:5432/5433:5432/g' docker-compose.yml
+          fi
+          
           docker-compose up -d --build
           docker-compose ps
