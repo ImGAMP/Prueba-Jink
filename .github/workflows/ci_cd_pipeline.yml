@@ -51,6 +51,12 @@ jobs:
             sleep 5
           done
 
+      - name: Show logs if producto-app fails
+        if: failure()
+        run: |
+          echo "Mostrando logs de producto-app para diagnóstico:"
+          docker compose logs producto-app
+
       - name: Install Python dependencies
         working-directory: ./inventario-service
         run: |
@@ -82,4 +88,3 @@ jobs:
         run: |
           echo "Servicios desplegados correctamente. docker compose ps:"
           docker compose ps
-
