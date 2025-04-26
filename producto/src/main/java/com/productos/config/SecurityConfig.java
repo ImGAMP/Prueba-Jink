@@ -14,11 +14,14 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/health", "/actuator/info", "/productos/saludo").permitAll()
-                .anyRequest().permitAll()
+                .requestMatchers(
+                    "/actuator/health",
+                    "/actuator/info",
+                    "/productos/saludo"
+                ).permitAll()
+                .anyRequest().permitAll() 
             )
             .csrf(csrf -> csrf.disable())
             .build();
     }
 }
-
