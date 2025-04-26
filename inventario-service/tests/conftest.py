@@ -20,7 +20,6 @@ def api_key_header():
     return {"X-API-KEY": os.getenv("API_KEY", "XYZ123")}
 
 @pytest.fixture(autouse=True)
-async def clean_db():
-    """Limpia la colección de inventario antes de cada test."""
+def clean_db():
     from config import inventario_collection
-    await inventario_collection.delete_many({})
+    inventario_collection.delete_many({})
