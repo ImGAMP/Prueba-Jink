@@ -41,7 +41,7 @@ services:
       dockerfile: Dockerfile
     container_name: producto-app
     ports:
-      - '8080:8080'  # <-- Aquí ya no cambiamos de puerto
+      - '8080:8080'
     depends_on:
       postgres:
         condition: service_healthy
@@ -55,9 +55,10 @@ services:
       - jinktic-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/productos/saludo"]
-      interval: 15s
-      timeout: 10s
-      retries: 5
+      interval: 20s         # Esperamos un poco más entre cada chequeo
+      timeout: 10s          # Damos un poco más de tiempo para cada respuesta
+      retries: 10           # Permitimos más intentos antes de fallar
+      start_period: 40s     # Damos tiempo de arranque al contenedor antes de chequear
 
   inventario-service:
     build:
