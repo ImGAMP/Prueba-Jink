@@ -54,7 +54,7 @@ services:
     networks:
       - jinktic-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/productos/saludo"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 20s
       timeout: 10s
       retries: 10

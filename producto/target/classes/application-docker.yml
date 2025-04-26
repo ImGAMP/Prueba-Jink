@@ -26,10 +26,13 @@ management:
       exposure:
         include: health,info,metrics
   endpoint:
-    "health":
+    health:
       show-details: always
   health:
-    "diskspace":
+    diskspace:
       enabled: true
-    "db":
+    db:
       enabled: true
+
+
+

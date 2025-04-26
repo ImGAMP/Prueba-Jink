@@ -23,17 +23,22 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Build and Start Services
         run: |
           docker compose up -d --build
 
       - name: Wait for Services to be Healthy
         run: |
-          echo "Esperando a que los servicios respondan correctamente..."
+          echo "Esperando a que los servicios estén saludables..."
 
           # Esperar producto-app (Spring Boot)
           for i in {1..30}; do
-            if curl -s http://localhost:8080/productos/saludo | grep -q "Hola"; then
+            if curl -s http://localhost:8080/actuator/health | grep -q "UP"; then
               echo "producto-app está listo"
               break
             fi
@@ -51,11 +56,12 @@ jobs:
             sleep 5
           done
 
-      - name: Show logs if producto-app fails
+      - name: Show logs if build fails
         if: failure()
         run: |
-          echo "Mostrando logs de producto-app para diagnóstico:"
+          echo "Mostrando logs de los servicios:"
           docker compose logs producto-app
+          docker compose logs inventario-service
 
       - name: Install Python dependencies
         working-directory: ./inventario-service
@@ -86,5 +92,5 @@ jobs:
       - name: Deploy Services
         if: github.ref == 'refs/heads/main'
         run: |
-          echo "Servicios desplegados correctamente. docker compose ps:"
+          echo "Servicios desplegados exitosamente:"
           docker compose ps

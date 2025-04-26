@@ -19,12 +19,21 @@ public class ApiKeyFilter implements Filter {
             throws IOException, ServletException {
 
         HttpServletRequest req = (HttpServletRequest) request;
+        String path = req.getRequestURI(); // Capturamos la ruta del request
+
+        //  Ignorar verificación si es health o info
+        if (path.equals("/actuator/health") || path.equals("/actuator/info")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String apiKey = req.getHeader("X-API-KEY");
 
         if (!API_KEY.equals(apiKey)) {
             ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid API Key");
             return;
         }
+
         chain.doFilter(request, response);
     }
 }
