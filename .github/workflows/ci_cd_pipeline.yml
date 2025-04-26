@@ -23,14 +23,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install docker-compose-plugin
-
       - name: Build and Start Services
         run: |
-          docker-compose up -d --build
+          docker compose up -d --build
 
       - name: Wait for Services to be Healthy
         run: |
@@ -85,5 +80,5 @@ jobs:
       - name: Deploy Services
         if: github.ref == 'refs/heads/main'
         run: |
-          echo "Servicios desplegados correctamente. docker-compose ps:"
-          docker-compose ps
+          echo "Servicios desplegados correctamente. docker compose ps:"
+          docker compose ps
