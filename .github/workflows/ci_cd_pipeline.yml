@@ -1,99 +1,85 @@
-version: '3.8'
+name: CI/CD Pipeline
 
-services:
-  mongo:
-    image: mongo:6.0
-    container_name: mongo
-    ports:
-      - '27017:27017'
-    volumes:
-      - mongo_data:/data/db
-    networks:
-      - jinktic-network
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
-  postgres:
-    image: postgres:15-alpine
-    container_name: postgres
-    environment:
-      POSTGRES_DB: mydatabase
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: secret
-    ports:
-      - '5432:5432'
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - jinktic-network
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "myuser", "-d", "mydatabase"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-22.04
 
-  producto-app:
-    build:
-      context: ./producto
-      dockerfile: Dockerfile
-    container_name: producto-app
-    ports:
-      - '8080:8080'
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
-      SPRING_DATASOURCE_USERNAME: myuser
-      SPRING_DATASOURCE_PASSWORD: secret
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_DOCKER_COMPOSE_ENABLED: false
-    networks:
-      - jinktic-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/productos/saludo"]
-      interval: 20s         # Esperamos un poco más entre cada chequeo
-      timeout: 10s          # Damos un poco más de tiempo para cada respuesta
-      retries: 10           # Permitimos más intentos antes de fallar
-      start_period: 40s     # Damos tiempo de arranque al contenedor antes de chequear
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  inventario-service:
-    build:
-      context: ./inventario-service
-      dockerfile: Dockerfile
-    container_name: inventario-service
-    ports:
-      - '8000:8000'
-    volumes:
-      - ./inventario-service:/app
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-    depends_on:
-      mongo:
-        condition: service_healthy
-      producto-app:
-        condition: service_healthy
-    environment:
-      MONGO_URI: mongodb://mongo:27017/inventario_db
-      PRODUCTOS_SERVICE_URL: http://producto-app:8080
-      INVENTARIO_SERVICE_URL: http://inventario-service:8000
-      API_KEY: XYZ123
-      PYTHONUNBUFFERED: 1
-    networks:
-      - jinktic-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
-      interval: 15s
-      timeout: 10s
-      retries: 5
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-volumes:
-  mongo_data:
-  postgres_data:
+      - name: Build and Start Services
+        run: |
+          docker compose up -d --build
 
-networks:
-  jinktic-network:
-    driver: bridge
+      - name: Wait for Services to be Healthy
+        run: |
+          echo "Esperando a que los servicios respondan correctamente..."
+
+          # Esperar producto-app (Spring Boot)
+          for i in {1..30}; do
+            if curl -s http://localhost:8080/productos/saludo | grep -q "Hola"; then
+              echo "producto-app está listo"
+              break
+            fi
+            echo "Esperando producto-app... ($i/30)"
+            sleep 5
+          done
+
+          # Esperar inventario-service (FastAPI)
+          for i in {1..30}; do
+            if curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/docs | grep -q "200"; then
+              echo "inventario-service está listo"
+              break
+            fi
+            echo "Esperando inventario-service... ($i/30)"
+            sleep 5
+          done
+
+      - name: Install Python dependencies
+        working-directory: ./inventario-service
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install --no-cache-dir -r requirements.txt
+
+      - name: Run Python tests (Inventario service)
+        working-directory: ./inventario-service
+        env:
+          API_KEY: XYZ123
+          PRODUCTOS_SERVICE_URL: http://localhost:8080
+          INVENTARIO_SERVICE_URL: http://localhost:8000
+          MONGO_URI: mongodb://localhost:27017/inventario_db
+        run: |
+          source venv/bin/activate
+          PYTHONPATH=. pytest -v
+
+      - name: Run Java tests (Producto service)
+        working-directory: ./producto
+        env:
+          SPRING_PROFILES_ACTIVE: test
+        run: |
+          ./mvnw clean test
+
+      - name: Deploy Services
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "Servicios desplegados correctamente. docker compose ps:"
+          docker compose ps
 
