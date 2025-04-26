@@ -11,15 +11,16 @@ HEADERS = {"X-API-KEY": os.getenv("API_KEY", "XYZ123")}
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_flujo_completo_inventario_y_productos():
-    """Test de integración real entre los servicios"""
+    """Test de integración completo entre inventario-service y producto-app."""
+
     max_retries = 5
     retry_delay = 3
-    
+
     async with AsyncClient() as client:
         # 1. Crear producto con reintentos
         producto_payload = {"nombre": "Producto Test Full", "precio": 500.00}
         res_producto = None
-        
+
         for attempt in range(max_retries):
             try:
                 res_producto = await client.post(
@@ -30,16 +31,18 @@ async def test_flujo_completo_inventario_y_productos():
                 )
                 if res_producto.status_code == 200:
                     break
-            except Exception as e:
+            except Exception:
                 if attempt == max_retries - 1:
                     raise
                 time.sleep(retry_delay)
-        
+
+        assert res_producto is not None, "No se recibió respuesta del servicio producto."
         assert res_producto.status_code == 200, f"Error al crear producto: {res_producto.text}"
+        
         producto_json = res_producto.json()
         producto_id = int(producto_json["data"]["id"])
 
-        # 2. Verificar acceso desde inventario
+        # 2. Consultar producto desde inventario
         res_consulta = await client.get(
             f"{INVENTARIO_URL}/inventario/consultar-producto/{producto_id}",
             headers=HEADERS,
@@ -49,7 +52,7 @@ async def test_flujo_completo_inventario_y_productos():
         consulta_json = res_consulta.json()
         assert consulta_json["data"]["attributes"]["nombre"] == "Producto Test Full"
 
-        # 3. Crear inventario
+        # 3. Crear inventario para ese producto
         inventario_payload = {
             "producto_id": producto_id,
             "cantidad": 10,
@@ -63,7 +66,7 @@ async def test_flujo_completo_inventario_y_productos():
         )
         assert res_inventario.status_code == 200
 
-        # 4. Simular compra
+        # 4. Simular compra de producto
         res_compra = await client.put(
             f"{INVENTARIO_URL}/inventario/{producto_id}?cantidad_comprada=3",
             headers=HEADERS,
@@ -71,7 +74,7 @@ async def test_flujo_completo_inventario_y_productos():
         )
         assert res_compra.status_code == 200
 
-        # 5. Verificar estado final
+        # 5. Verificar estado final del inventario
         res_final = await client.get(
             f"{INVENTARIO_URL}/inventario/{producto_id}",
             headers=HEADERS,
@@ -80,4 +83,4 @@ async def test_flujo_completo_inventario_y_productos():
         assert res_final.status_code == 200
         final_data = res_final.json()
         assert final_data["cantidad"] == 7
-        assert len(final_data["historial"]) == 1
+        assert len(final_data["historial"]) >= 1

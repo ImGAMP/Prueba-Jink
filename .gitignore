@@ -1,44 +1,39 @@
-# Entornos virtuales de Python
+# ===================== PYTHON =====================
+
+# Entornos virtuales
 venv/
 */venv/
 **/venv/
 
-# Archivos generados de Python
+# Archivos de caché y compilados
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 
-# Archivos temporales de pruebas y cobertura
-*.log
-*.tmp
+# Pruebas, cobertura y herramientas
+.pytest_cache/
 .cache/
-pytest_cache/
-.coverage
 htmlcov/
+.coverage
 .tox/
 .mypy_cache/
-.pytest_cache/
+.pyre/
+.dmypy.json
+.pytype/
 
 # Metadata de paquetes
 *.egg-info/
 *.eggs/
 *.dist-info/
 
-# Variables de entorno
+# Variables de entorno y configuraciones secretas
 .env
 .env.*
 
-# Configuraciones locales de editores
-.vscode/
-.idea/
-*.sublime-project
-*.sublime-workspace
+# ===================== JAVA / SPRING BOOT =====================
 
-# Dependencias de Node.js
-node_modules/
-
-# Artefactos de Maven
+# Dependencias y artefactos de Maven Wrapper
 producto/target/
 producto/.mvn/
 producto/mvnw
@@ -50,30 +45,53 @@ producto/mvnw.cmd
 *.war
 *.ear
 
-# Informes de cobertura y pruebas de Java
+# Informes de cobertura de Java
 *.exec
 .surefire-reports/
 jacoco.exec
 
-# Archivos temporales y de sistema
+# ===================== DOCKER =====================
+
+# Docker-compose override
+docker-compose.override.yml
+
+# Build cache de Docker
+**/tmp/
+**/.docker-cache/
+**/build/
+
+# ===================== SISTEMA / EDITORES =====================
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Archivos de backup temporales
 *.bak
 *.swp
 *~
 *.orig
-.DS_Store
-Thumbs.db
 
-# Archivos binarios o bibliotecas compartidas
-**/*.so
-**/*.dll
-**/*.exe
-**/*.a
-**/*.lib
+# Configuraciones de editores
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.iml
 
-# Archivos de backup de Git filter-repo
+# ===================== EXTRAS (opcional) =====================
+
+# Logs
+*.log
+
+# Caches generales
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Archivos de reescritura de Git
 .git-rewrite/
 
-# Archivos de configuración de IDEs
-.idea/
-*.iml
 

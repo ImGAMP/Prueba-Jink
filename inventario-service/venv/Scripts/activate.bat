@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set "VIRTUAL_ENV=C:\Users\im_ga\OneDrive\Documentos\Pruebas\prueba-jinktic\inventario-service\venv"
+set "VIRTUAL_ENV=C:\Users\im_ga\OneDrive\Documentos\Pruebas\Prueba-Jink\inventario-service\venv"
 
 if not defined PROMPT set PROMPT=$P$G
 
