@@ -11,3 +11,6 @@ spring:
 
 server:
   port: 8080
+
+app:
+  api-key: ${API_KEY:XYZ123}
