@@ -71,6 +71,14 @@ jobs:
           pip install --upgrade pip
           pip install --no-cache-dir -r requirements.txt
 
+      - name: Run Java tests (Producto service)
+        working-directory: ./producto
+        env:
+          SPRING_PROFILES_ACTIVE: test
+          API_KEY: XYZ123
+        run: |
+          ./mvnw clean test
+
       - name: Run Python tests (Inventario service)
         working-directory: ./inventario-service
         env:
@@ -81,14 +89,6 @@ jobs:
         run: |
           source venv/bin/activate
           PYTHONPATH=. pytest -v
-
-      - name: Run Java tests (Producto service)
-        working-directory: ./producto
-        env:
-          SPRING_PROFILES_ACTIVE: test
-          API_KEY: XYZ123
-        run: |
-          ./mvnw clean test
 
       - name: Deploy Services
         if: github.ref == 'refs/heads/main'
