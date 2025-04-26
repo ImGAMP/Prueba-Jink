@@ -51,6 +51,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: secret
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DOCKER_COMPOSE_ENABLED: false
+      API_KEY: XYZ123
     networks:
       - jinktic-network
     healthcheck:
@@ -96,3 +97,4 @@ volumes:
 networks:
   jinktic-network:
     driver: bridge
+

@@ -1,78 +1,93 @@
-# Microservicios Productos e Inventario
+# Microservicios: Productos e Inventario
 
-Este proyecto implementa una solución basada en microservicios que gestiona productos e inventarios. Utiliza `Spring Boot` para el servicio de productos y `FastAPI` para el servicio de inventario, ambos comunicándose bajo el estándar JSON:API.
+Este repositorio contiene una solución basada en microservicios para la gestión de productos e inventarios, implementada con:
 
+- `Spring Boot` para el servicio de productos
+- `FastAPI` para el servicio de inventarios
+- Estándar de comunicación: `JSON:API`
+- Contenedores gestionados mediante `Docker Compose`
 
-### Puertos expuestos
-- `http://localhost:8000` → inventario-service (FastAPI)
-- `http://localhost:8081` → producto-app (Spring Boot)
-- `mongo:27017` → MongoDB (solo interno)
-- `postgres:5432` → PostgreSQL (solo interno)
+## Puertos expuestos
 
-### Servicios y contenedores
-- `inventario-service`: FastAPI + MongoDB
-- `producto-app`: Spring Boot + PostgreSQL
-- Base de datos NoSQL: MongoDB v6
-- Base de datos SQL: PostgreSQL 15-alpine
+| Servicio              | Tecnología              | URL de acceso                  |
+|-----------------------|---------------------------|---------------------------------|
+| Inventario-Service     | FastAPI + MongoDB         | http://localhost:8000           |
+| Producto-App           | Spring Boot + PostgreSQL  | http://localhost:8080           |
 
-## Instrucciones de instalación y ejecución
+(Las bases de datos MongoDB y PostgreSQL están disponibles solo dentro de la red de Docker)
 
-### Requisitos previos
-- Docker y Docker Compose instalados.
+## Tecnologías principales
 
-### Ejecución
+- **Inventario-Service**: FastAPI, MongoDB
+- **Producto-App**: Spring Boot, PostgreSQL
+- **Docker Compose** para orquestación
+- **API Key Auth** para seguridad de servicios
+
+## Requisitos
+
+- Docker
+- Docker Compose
+
+Opcional para desarrollo local:
+- Python 3.11+
+- Java 17+
+- Maven
+
+## Ejecución local
+
+Clona el repositorio y levanta los contenedores:
+
 ```bash
-git clone https://github.com/tu_usuario/tu_repositorio.git
-cd tu_repositorio
 docker compose up --build
 ```
 
-Ambos servicios estarán disponibles en:
-- Producto: `http://producto-app:8080`
-- Inventario: `http://localhost:8000`
+> Tip: Usa el script `make local-test` si deseas correr pruebas locales automáticamente.
 
-## Arquitectura
-
-La solución se compone de dos microservicios independientes:
-
-- **producto-app (Java Spring Boot + PostgreSQL)**: CRUD de productos con paginación.
-- **inventario-service (FastAPI + MongoDB)**: Consultas y actualizaciones de inventario, que se comunican con el microservicio de productos.
-
-Ambos servicios están protegidos mediante autenticación por API Key.
-
-## Diagrama de interacción
+## Arquitectura general
 
 ```mermaid
 graph TD
-    A[Cliente] -->|Consulta Inventario| B[FastAPI - Inventario]
-    B -->|Consulta Producto| C[Spring Boot - Producto]
-    B -->|Evento en Consola| D[Registro Log]
+    Cliente -->|Consulta Inventario| Inventario(FastAPI Service)
+    Inventario -->|Consulta Producto| Producto(Spring Boot Service)
+    Inventario -->|Eventos de Log| Logs
 ```
 
-## Decisiones técnicas
+- **producto-app**: CRUD de productos, respuestas formateadas en JSON:API.
+- **inventario-service**: Manejo de stock, compras y consultas de inventario.
 
-- **Spring Boot + PostgreSQL**: óptimo para CRUD robustos y manejo estructurado de datos relacionales.
-- **FastAPI + MongoDB**: ideal para manejar datos más flexibles como el historial de movimientos.
-- **JSON:API**: permite estandarización, documentación y facilidad de pruebas.
-- **API Key Auth**: mecanismo básico pero efectivo para autenticación entre microservicios.
-- **Docker Compose**: facilita despliegue y desarrollo con múltiples servicios.
+Ambos servicios validan el acceso mediante **API Key**.
 
-## Guía de implementación para nuevos desarrolladores
+## Pruebas
 
-1. Cada microservicio tiene su propio `README.md`, `Dockerfile` y `requirements`.
-2. Usa API Keys que puedes configurar como variables de entorno en `docker-compose.yml`.
-3. Todos los endpoints están documentados con Swagger/OpenAPI en `/swagger-ui.html` (Spring) y `/docs` (FastAPI).
-4. Las pruebas se encuentran en `tests/` y pueden ejecutarse con `pytest` o `mvn test`.
+- **Inventario-Service**: `pytest`
+- **Producto-App**: `Maven`
+- **Pruebas de integración entre servicios** usando `httpx`.
 
-## Recomendaciones para escalar
+Puedes correr todos los tests automáticamente con:
 
-- Migrar eventos de consola a Kafka o RabbitMQ.
-- Introducir Redis como caché para productos.
-- Implementar un Gateway/API Manager para centralizar seguridad y monitoreo.
-- Añadir métricas Prometheus y paneles Grafana.
+```bash
+make test
+```
 
-## Autor
+## Buenas prácticas
 
-Desarrollado por Gustavo Adolfo Mojica Perdigon  
+- **Estandarización JSON:API** en todos los endpoints.
+- **Docker Compose** preparado para extensión futura.
+- **API Keys** configurables como variables de entorno.
+- **Healthchecks** automáticos en todos los servicios.
+
+## Futuras mejoras sugeridas
+
+- Implementación de mensajería (Kafka, RabbitMQ)
+- Uso de Redis como caché intermedio
+- Implementar un API Gateway para centralizar autenticación
+- Monitoreo de métricas con Prometheus + Grafana
+
+## Contacto
+
+Proyecto desarrollado por:
+
+**Gustavo Adolfo Mojica Perdigón**  
 Correo: gmojica@unal.edu.co  
 2025
+

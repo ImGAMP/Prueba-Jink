@@ -86,6 +86,7 @@ jobs:
         working-directory: ./producto
         env:
           SPRING_PROFILES_ACTIVE: test
+          API_KEY: XYZ123
         run: |
           ./mvnw clean test
 
