@@ -12,8 +12,8 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/health", "/actuator/info").permitAll() // ✅ Deja pasar health sin auth
-                .anyRequest().authenticated() // 🔥 Todo lo demás sigue protegido
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll() // Deja pasar health sin auth
+                .anyRequest().authenticated() // Todo lo demás sigue protegido
             )
             .csrf(csrf -> csrf.disable()) // (opcional para APIs sin formulario)
             .build();
