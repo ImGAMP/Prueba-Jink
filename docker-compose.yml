@@ -55,10 +55,10 @@ services:
       - jinktic-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/productos/saludo"]
-      interval: 20s         # Esperamos un poco más entre cada chequeo
-      timeout: 10s          # Damos un poco más de tiempo para cada respuesta
-      retries: 10           # Permitimos más intentos antes de fallar
-      start_period: 40s     # Damos tiempo de arranque al contenedor antes de chequear
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
 
   inventario-service:
     build:
