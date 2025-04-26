@@ -8,7 +8,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -21,15 +21,15 @@ public class CorrelationIdIntegrationTest {
     @Test
     void debeInyectarCorrelationIdCuandoHeaderPresente() throws Exception {
         mockMvc.perform(get("/productos")
+                        .header("X-API-KEY", "XYZ123")
                         .header("X-Correlation-ID", "test-correlation-id"))
                 .andExpect(status().isOk());
-        // Verifica visualmente en el log que se registre correctamente
     }
 
     @Test
     void debeGenerarCorrelationIdCuandoNoSeEnvíaHeader() throws Exception {
-        mockMvc.perform(get("/productos"))
+        mockMvc.perform(get("/productos")
+                        .header("X-API-KEY", "XYZ123"))
                 .andExpect(status().isOk());
-        // Verifica visualmente que no falle sin header
     }
 }

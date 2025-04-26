@@ -37,22 +37,22 @@ jobs:
           echo "Esperando a que los servicios estén saludables..."
 
           # Esperar producto-app (Spring Boot)
-          for i in {1..30}; do
+          for i in {1..10}; do
             if curl -s http://localhost:8080/actuator/health | grep -q "UP"; then
               echo "producto-app está listo"
               break
             fi
-            echo "Esperando producto-app... ($i/30)"
+            echo "Esperando producto-app... ($i/10)"
             sleep 5
           done
 
           # Esperar inventario-service (FastAPI)
-          for i in {1..30}; do
+          for i in {1..10}; do
             if curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/docs | grep -q "200"; then
               echo "inventario-service está listo"
               break
             fi
-            echo "Esperando inventario-service... ($i/30)"
+            echo "Esperando inventario-service... ($i/10)"
             sleep 5
           done
 

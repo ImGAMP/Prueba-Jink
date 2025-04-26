@@ -18,10 +18,13 @@ public class ApiKeyFilterTest {
         HttpServletResponse res = mock(HttpServletResponse.class);
         FilterChain chain = mock(FilterChain.class);
 
+        when(req.getRequestURI()).thenReturn("/productos"); // mockear el path
         when(req.getHeader("X-API-KEY")).thenReturn("XYZ123");
+
         filter.doFilter(req, res, chain);
 
         verify(chain, times(1)).doFilter(req, res);
+        verify(res, never()).sendError(anyInt(), anyString());
     }
 
     @Test
@@ -31,9 +34,12 @@ public class ApiKeyFilterTest {
         HttpServletResponse res = mock(HttpServletResponse.class);
         FilterChain chain = mock(FilterChain.class);
 
+        when(req.getRequestURI()).thenReturn("/productos"); // mockear el path
         when(req.getHeader("X-API-KEY")).thenReturn("INVALID");
+
         filter.doFilter(req, res, chain);
 
-        verify(res).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid API Key");
+        verify(res).sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden: API Key inválida");
+        verify(chain, never()).doFilter(req, res);
     }
 }

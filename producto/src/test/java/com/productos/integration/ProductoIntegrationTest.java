@@ -45,6 +45,7 @@ public class ProductoIntegrationTest {
         mockMvc.perform(get("/productos")
                 .param("page", "0")
                 .param("size", "10")
+                .header("X-API-KEY", "XYZ123")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data", hasSize(2)))
@@ -57,6 +58,7 @@ public class ProductoIntegrationTest {
         var nuevoProducto = new ProductoRequest("Mouse HP", new BigDecimal("89900"));
 
         mockMvc.perform(post("/productos")
+                .header("X-API-KEY", "XYZ123")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(nuevoProducto)))
             .andExpect(status().isOk())
@@ -71,6 +73,7 @@ public class ProductoIntegrationTest {
         Producto producto = productoRepository.save(new Producto(null, "Tablet Xiaomi", new BigDecimal("1200000")));
 
         mockMvc.perform(get("/productos/" + producto.getId())
+                .header("X-API-KEY", "XYZ123")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data.attributes.nombre", is("Tablet Xiaomi")))
@@ -83,6 +86,7 @@ public class ProductoIntegrationTest {
         var request = new ProductoRequest("Smartphone Pro", new BigDecimal("950000"));
 
         mockMvc.perform(put("/productos/" + producto.getId())
+                .header("X-API-KEY", "XYZ123")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
@@ -95,6 +99,7 @@ public class ProductoIntegrationTest {
         Producto producto = productoRepository.save(new Producto(null, "Audífonos Sony", new BigDecimal("200000")));
 
         mockMvc.perform(delete("/productos/" + producto.getId())
+                .header("X-API-KEY", "XYZ123")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
     }
@@ -102,6 +107,7 @@ public class ProductoIntegrationTest {
     @Test
     void debeRetornar404SiProductoNoExiste() throws Exception {
         mockMvc.perform(get("/productos/9999")
+                .header("X-API-KEY", "XYZ123")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
     }
@@ -111,6 +117,7 @@ public class ProductoIntegrationTest {
         var productoInvalido = new ProductoRequest("", new BigDecimal("0"));
 
         mockMvc.perform(post("/productos")
+                .header("X-API-KEY", "XYZ123")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(productoInvalido)))
             .andExpect(status().isBadRequest())
