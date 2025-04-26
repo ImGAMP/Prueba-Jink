@@ -10,6 +10,11 @@ services:
       - mongo_data:/data/db
     networks:
       - jinktic-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   postgres:
     image: postgres:15-alpine
@@ -19,11 +24,40 @@ services:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: secret
     ports:
-      - '5433:5432'
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - jinktic-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "myuser", "-d", "mydatabase"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  producto-app:
+    build:
+      context: ./producto
+      dockerfile: Dockerfile
+    container_name: producto-app
+    ports:
+      - '8080:8080'  # <-- Aquí ya no cambiamos de puerto
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DOCKER_COMPOSE_ENABLED: false
+    networks:
+      - jinktic-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/productos/saludo"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
 
   inventario-service:
     build:
@@ -36,36 +70,23 @@ services:
       - ./inventario-service:/app
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     depends_on:
-      - mongo
-      - producto-app
+      mongo:
+        condition: service_healthy
+      producto-app:
+        condition: service_healthy
     environment:
-      - MONGO_URL=mongodb://mongo:27017/inventario_db
-      - PRODUCTOS_URL=http://producto-app:8080
-      - INVENTARIO_SERVICE_URL=http://inventario-service:8000
-      - API_KEY=XYZ123
-      - PYTHONUNBUFFERED=1
+      MONGO_URI: mongodb://mongo:27017/inventario_db
+      PRODUCTOS_SERVICE_URL: http://producto-app:8080
+      INVENTARIO_SERVICE_URL: http://inventario-service:8000
+      API_KEY: XYZ123
+      PYTHONUNBUFFERED: 1
     networks:
       - jinktic-network
-
-  producto-app:
-    build:
-      context: ./producto
-      dockerfile: Dockerfile
-    container_name: producto-app
-    ports:
-      - '8081:8080'
-    volumes:
-      - ./producto:/app
-    depends_on:
-      - postgres
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
-      SPRING_DATASOURCE_USERNAME: myuser
-      SPRING_DATASOURCE_PASSWORD: secret
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_DOCKER_COMPOSE_ENABLED: false
-    networks:
-      - jinktic-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
 
 volumes:
   mongo_data:
@@ -73,3 +94,4 @@ volumes:
 
 networks:
   jinktic-network:
+    driver: bridge
